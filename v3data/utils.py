@@ -1,5 +1,4 @@
 import datetime
-import pytz
 
 
 def timestamp_to_date(timestamp, format=None):
@@ -16,6 +15,12 @@ def timestamp_to_date(timestamp, format=None):
 def timestamp_ago(time_delta):
     """Returns timestamp of time_delta ago from now in UTC"""
     return int((datetime.datetime.utcnow() - time_delta).replace(tzinfo=datetime.timezone.utc).timestamp())
+
+
+def year_month_to_timestamp(year, month):
+    if year < 0 or month < 0 or month > 12:
+        raise ValueError("Invalid month")
+    return int(datetime.datetime(year, month, 1, tzinfo=datetime.timezone.utc).timestamp())
 
 
 def sqrtPriceX96_to_priceDecimal(sqrtPriceX96, token0_decimal, token1_decimal):

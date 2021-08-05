@@ -1,13 +1,12 @@
 import pandas as pd
 import numpy as np
-from v3data import VisorClient, PricingClient
+from v3data import VisorClient
 
 
 class DailyChart:
     def __init__(self, days=20):
         self.days = days
         self.visor_client = VisorClient()
-        self.pricing_client = PricingClient()
 
     def _get_all_flows(self):
         """Daily chart flows bar chart for hypervisors"""
@@ -17,7 +16,7 @@ class DailyChart:
                 first: 1000
             ){
                 id
-                uniswapV3HypervisorDayData(
+                dayData(
                     first: $days
                     orderBy: date
                     orderDirection: desc
@@ -36,7 +35,7 @@ class DailyChart:
         }
         hypervisors = self.visor_client.query(query, variables)['data']['uniswapV3Hypervisors']
 
-        data = [day_data for hypervisor in hypervisors for day_data in hypervisor['uniswapV3HypervisorDayData']]
+        data = [day_data for hypervisor in hypervisors for day_data in hypervisor['dayData']]
 
         return data
 
@@ -91,7 +90,7 @@ class DailyChart:
         """Total TVL chart broken down by hypervisor"""
         query = """
         query hypervisorDaily($days: Int!){
-            hypervisors(
+            uniswapV3Hypervisors(
                 first: 1000
             ){
                 id
@@ -122,7 +121,7 @@ class DailyChart:
         }
         """
         variables = {'days': self.days}
-        data = self.pricing_client.query(query, variables)['data']['hypervisors']
+        data = self.visor_client.query(query, variables)['data']['uniswapV3Hypervisors']
 
         df_all = pd.DataFrame()
         for hypervisor in data:

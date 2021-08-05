@@ -1,22 +1,33 @@
-from v3data import VisorClient, PricingClient
+from v3data import VisorClient
 
-class UserData:
+
+class VisorUser:
     def __init__(self, user_address):
         self.visor_client = VisorClient()
-        self.pricing_client = PricingClient()
-        self.address = user_address
+        self.address = user_address.lower()
+        self.decimal_factor = 10 ** 18
+        self.data = {}
 
-    def all_data(self):
-        query_users = """
+    def _get_data(self):
+        query = """
         query userData($userAddress: String!) {
             user(
                 id: $userAddress
             ){
                 visorsOwned {
                     id
+                    visrStaked
                     hypervisorShares {
                         hypervisor {
                             id
+                            pool{
+                                token0{ decimals }
+                                token1{ decimals }
+                            }
+                            totalSupply
+                            tvl0
+                            tvl1
+                            tvlUSD
                         }
                         shares
                     }
@@ -25,27 +36,37 @@ class UserData:
         }
         """
         variables = {"userAddress": self.address}
-        data = self.visor_client.query(query_users, variables)['data']['user']
+        self.data = self.visor_client.query(query, variables)['data']['user']
 
-        if not data:
+    def info(self, get_data=True):
+
+        if get_data:
+            self._get_data()
+
+        if not self.data:
             return {}
 
-        tvl = self.pricing_client.hypervisors_tvl()
-
         visors = {}
-        for visor in data['visorsOwned']:
+        for visor in self.data['visorsOwned']:
             visor_id = visor['id']
-            visors[visor_id] = {}
+            visors[visor_id] = {
+                "visrStaked": int(visor['visrStaked']) / self.decimal_factor
+            }
             for hypervisor in visor['hypervisorShares']:
                 hypervisor_id = hypervisor['hypervisor']['id']
-                shareOfSupply = int(hypervisor['shares']) / int(tvl[hypervisor_id]['totalSupply'])
-                print(tvl[hypervisor_id]['tvlUSD'])
+                shares = int(hypervisor['shares'])
+                totalSupply = int(hypervisor['hypervisor']['totalSupply'])
+                shareOfSupply = shares / totalSupply if totalSupply > 0 else 0
+                tvlUSD = float(hypervisor['hypervisor']['tvlUSD'])
+                tvl0_decimal = float(hypervisor['hypervisor']['tvl0']) / 10 ** int(hypervisor['hypervisor']['pool']['token0']['decimals'])
+                tvl1_decimal = float(hypervisor['hypervisor']['tvl1']) / 10 ** int(hypervisor['hypervisor']['pool']['token1']['decimals'])
+
                 visors[visor_id][hypervisor_id] = {
-                    "shares": hypervisor['shares'],
+                    "shares": shares,
                     "shareOfSupply": shareOfSupply,
-                    "balance0": tvl[hypervisor_id]['tvl0Decimal'] * shareOfSupply,
-                    "balance1": tvl[hypervisor_id]['tvl1Decimal'] * shareOfSupply,
-                    "balanceUSD": float(tvl[hypervisor_id]['tvlUSD']) * shareOfSupply
+                    "balance0": tvl0_decimal * shareOfSupply,
+                    "balance1": tvl1_decimal * shareOfSupply,
+                    "balanceUSD": tvlUSD * shareOfSupply
                 }
 
         return visors

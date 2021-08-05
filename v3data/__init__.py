@@ -2,7 +2,7 @@ import requests
 
 from v3data.config import (
     VISOR_SUBGRAPH_URL,
-    PRICING_SUBGRAPH_URL,
+    UNI_V2_SUBGRAPH_URL,
     UNI_V3_SUBGRAPH_URL,
     ETH_BLOCKS_SUBGRAPH_URL
 )
@@ -50,15 +50,10 @@ class VisorClient(SubgraphClient):
     def __init__(self):
         super().__init__(VISOR_SUBGRAPH_URL)
 
-
-class PricingClient(SubgraphClient):
-    def __init__(self):
-        super().__init__(PRICING_SUBGRAPH_URL)
-
     def hypervisors_tvl(self):
         query_tvl = """
         {
-            hypervisors(first:1000) {
+            uniswapV3Hypervisors(first:1000) {
                 id
                 pool{
                     id
@@ -76,7 +71,7 @@ class PricingClient(SubgraphClient):
             }
         }
         """
-        tvls = self.query(query_tvl)['data']['hypervisors']
+        tvls = self.query(query_tvl)['data']['uniswapV3Hypervisors']
 
         return {
             hypervisor['id']: {
@@ -86,8 +81,13 @@ class PricingClient(SubgraphClient):
                 "tvl0Decimal": int(hypervisor['tvl0']) / 10 ** int(hypervisor['pool']['token0']['decimals']),
                 "tvl1Decimal": int(hypervisor['tvl1']) / 10 ** int(hypervisor['pool']['token1']['decimals']),
                 "totalSupply": int(hypervisor['totalSupply'])
-            }
-        for hypervisor in tvls}
+            } for hypervisor in tvls
+        }
+
+
+class UniswapV2Client(SubgraphClient):
+    def __init__(self):
+        super().__init__(UNI_V2_SUBGRAPH_URL)
 
 
 class UniswapV3Client(SubgraphClient):
