@@ -9,7 +9,7 @@ from v3data.charts import BaseLimit, Benchmark, DailyChart
 from v3data.hypervisor import HypervisorData
 from v3data.visr import VisrInfo, VisrYield, VisrDistribution
 from v3data.users import VisorUser
-from v3data.visor import VisorVault
+from v3data.visor import VisorVaultInfo
 from v3data.toplevel import TopLevelData
 from v3data.dashboard import Dashboard
 from v3data.config import DEFAULT_TIMEZONE, PRIVATE_BETA_TVL, CHARTS_CACHE_TIMEOUT
@@ -24,10 +24,12 @@ CORS(app)
 def main():
     return "Visor Data"
 
+
 @app.route('/status/subgraph')
 def subgraph_status():
     client = IndexNodeClient()
     return client.status()
+
 
 @app.route('/charts/bollingerbands/<string:poolAddress>')
 @app.route('/bollingerBandsChartData/<string:poolAddress>')
@@ -104,9 +106,10 @@ def base_range_chart_all():
 def benchmark_chart(hypervisor_address):
     start_year = int(request.args.get("startYear", 2021))
     start_month = int(request.args.get("startMonth", 6))
+    start_day = int(request.args.get("start", 1))
     n_months = int(request.args.get("nMonths", 1))
     hypervisor_address = hypervisor_address.lower()
-    benchmark = Benchmark(hypervisor_address, start_year, start_month, n_months)
+    benchmark = Benchmark(hypervisor_address, start_year, start_month, start_day, n_months)
     chart_data = benchmark.chart()
     if chart_data:
         return {hypervisor_address: chart_data}
@@ -123,9 +126,8 @@ def user_data(address):
 
 @app.route('/vault/<string:address>')
 def visor_data(address):
-    visor_vault = VisorVault(address)
-
-    return visor_vault.info()
+    visor_vault_info = VisorVaultInfo(address)
+    return visor_vault_info.output()
 
 
 @app.route('/pools/<string:token>')

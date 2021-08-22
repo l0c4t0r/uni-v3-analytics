@@ -2,23 +2,23 @@ import numpy as np
 import pandas as pd
 
 from v3data import VisorClient, UniswapV2Client
-from v3data.utils import year_month_to_timestamp
+from v3data.utils import year_month_day_to_timestamp
 from v3data.constants import WETH_ADDRESS
 
 
 class Benchmark:
-    def __init__(self, address, start_year, start_month, n_months=1):
+    def __init__(self, address, start_year, start_month, start_day=1, n_months=1):
         self.visor_client = VisorClient()
         self.v2_client = UniswapV2Client()
         self.address = address
-        self._init_dates(start_year, start_month, n_months)
+        self._init_dates(start_year, start_month, start_day, n_months)
         self.weth_token = None
 
-    def _init_dates(self, start_year, start_month, n_months):
+    def _init_dates(self, start_year, start_month, start_day, n_months):
         additional_years, end_month = divmod(start_month + n_months, 12)
         end_year = start_year + additional_years
-        self.start_date = year_month_to_timestamp(start_year, start_month)
-        self.end_date = year_month_to_timestamp(end_year, end_month)
+        self.start_date = year_month_day_to_timestamp(start_year, start_month, start_day)
+        self.end_date = year_month_day_to_timestamp(end_year, end_month, 30)
 
     def get_data(self):
         # Get hypervisor position
@@ -111,7 +111,8 @@ class Benchmark:
             "startDate": self.start_date,
             "endDate": self.end_date
         }
-
+        print(self.v2_client.query(
+            query_v2, variables_v2))
         v2_data = self.v2_client.query(
             query_v2, variables_v2)['data']
 
