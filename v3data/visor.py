@@ -18,6 +18,8 @@ class VisorVaultData:
             ){
                 owner { id }
                 visrStaked
+                visrDeposited
+                visrEarnedRealized
                 hypervisorShares {
                     hypervisor {
                         id
@@ -96,10 +98,15 @@ class VisorVaultInfo(VisorVaultData):
             return {}
 
         visor_owner = self.data['visor']['owner']['id']
+        visrStaked = int(self.data['visor']['visrStaked'])
+        visrDeposited = int(self.data['visor']['visrDeposited'])
+        visrEarnedRealized = int(self.data['visor']['visrEarnedRealized'])
         visor_info = {
             "owner": visor_owner,
-            "visrStaked": int(self.data['visor']['visrStaked']) / self.decimal_factor,
-            "visrStakedShare": f"{int(self.data['visor']['visrStaked']) / int(self.data['visrToken']['totalStaked']):.2%}"
+            "visrStaked": visrStaked / self.decimal_factor,
+            "visrDeposited": visrDeposited / self.decimal_factor,
+            "totalVisrEarned": (visrStaked - visrDeposited + visrEarnedRealized) / self.decimal_factor,
+            "visrStakedShare": f"{visrStaked / int(self.data['visrToken']['totalStaked']):.2%}"
         }
 
         returns = self._returns()

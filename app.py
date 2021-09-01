@@ -8,7 +8,8 @@ from v3data.bollingerbands import BollingerBand
 from v3data.charts import BaseLimit, Benchmark, DailyChart
 from v3data.hypervisor import HypervisorData
 from v3data.visr import VisrInfo, VisrYield, VisrDistribution
-from v3data.users import VisorUser
+from v3data.eth import EthDistribution
+from v3data.users import UserInfo
 from v3data.visor import VisorVaultInfo
 from v3data.toplevel import TopLevelData
 from v3data.dashboard import Dashboard
@@ -119,9 +120,9 @@ def benchmark_chart(hypervisor_address):
 
 @app.route('/user/<string:address>')
 def user_data(address):
-    visor_user = VisorUser(address)
+    user_info = UserInfo(address)
 
-    return visor_user.info()
+    return user_info.output(get_data=True)
 
 
 @app.route('/vault/<string:address>')
@@ -157,6 +158,17 @@ def visr_distributions():
 
     visr_distributions = VisrDistribution(days=days, timezone=timezone)
     return visr_distributions.output()
+
+@app.route('/eth/dailyDistribution')
+def eth_distributions():
+    days = int(request.args.get("days", 6))
+    timezone = request.args.get("timezone", DEFAULT_TIMEZONE).upper()
+
+    if timezone not in ['UTC', 'UTC-5']:
+        return Response("Only UTC and UTC-5 timezones supported", status=400)
+
+    eth_distributions = EthDistribution(days=days, timezone=timezone)
+    return eth_distributions.output()
 
 
 @app.route('/hypervisor/<string:hypervisor_address>/basicStats')

@@ -2,7 +2,7 @@ from v3data import VisorClient
 from v3data.visor import VisorVaultInfo
 
 
-class VisorUser:
+class UserData:
     def __init__(self, user_address):
         self.visor_client = VisorClient()
         self.address = user_address.lower()
@@ -22,6 +22,8 @@ class VisorUser:
                     id
                     owner{ id }
                     visrStaked
+                    visrDeposited
+                    visrEarnedRealized
                     hypervisorShares {
                         hypervisor {
                             id
@@ -51,7 +53,9 @@ class VisorUser:
         variables = {"userAddress": self.address}
         self.data = self.visor_client.query(query, variables)['data']
 
-    def info(self, get_data=True):
+
+class UserInfo(UserData):
+    def output(self, get_data=True):
 
         if get_data:
             self._get_data()
