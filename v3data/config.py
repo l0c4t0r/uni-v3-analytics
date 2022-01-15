@@ -38,3 +38,10 @@ CHARTS_CACHE_TIMEOUT = os.environ.get('CHARTS_CACHE_TIMEOUT', 600)
 DASHBOARD_CACHE_TIMEOUT = os.environ.get('DASHBOARD_CACHE_TIMEOUT', 600)
 
 EXCLUDED_HYPERVISORS = list(filter(None, os.environ.get('EXCLUDED_HYPES', "").split(",")))
+
+legacy_stats = {
+    "visr_distributed": 987998.1542393989,
+    "visr_distributed_usd": 1246656.7073805775,
+    "estimated_visr_annual_distribution": 1237782.0442017058,
+    "estimated_visr_annual_distribution_usd": 1197097.0895269862
+}

@@ -6,7 +6,7 @@ from v3data.toplevel import TopLevelData
 from v3data.rewardshypervisor import RewardsHypervisorInfo
 from v3data.utils import timestamp_ago
 from v3data.constants import DAYS_IN_PERIOD, GAMMA_ADDRESS, XGAMMA_ADDRESS
-
+from v3data.config import legacy_stats
 
 class Dashboard:
     def __init__(self, period):
@@ -171,10 +171,10 @@ class Dashboard:
             "feeStatsStakingApr":  0, # visr_yield[self.period]['apr'],
             "feeStatsStakingApy":  0, # visr_yield[self.period]['apy'],
             "feeStatsStakingDailyYield": 0, # daily_yield,
-            "feeCumulativeFeeUsd": gamma_info['totalDistributedUSD'],
-            "feeCumulativeFeeUsdAnnual": gamma_yield[self.period]['estimatedAnnualDistributionUSD'],
-            "feeCumulativeFeeDistributed": gamma_info['totalDistributed'],
-            "feeCumulativeFeeDistributedAnnual": gamma_yield[self.period]['estimatedAnnualDistribution'],
+            "feeCumulativeFeeUsd": legacy_stats['visr_distributed_usd'] + gamma_info['totalDistributedUSD'],
+            "feeCumulativeFeeUsdAnnual": legacy_stats['estimated_visr_annual_distribution_usd'],  # gamma_yield[self.period]['estimatedAnnualDistributionUSD'],
+            "feeCumulativeFeeDistributed": legacy_stats['visr_distributed'] + gamma_info['totalDistributed'],
+            "feeCumulativeFeeDistributedAnnual": legacy_stats['estimated_visr_annual_distribution'],  # gamma_yield[self.period]['estimatedAnnualDistribution'],
             "uniswapPairTotalValueLocked": top_level_data['tvl'],
             "uniswapPairAmountPairs": top_level_data['pool_count'],
             "uniswapFeesGenerated": top_level_data['fees_claimed'],
