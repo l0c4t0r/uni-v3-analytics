@@ -25,7 +25,7 @@ ETH_BLOCKS_SUBGRAPH_URL = "https://api.thegraph.com/subgraphs/name/blocklytics/e
 UNI_V2_SUBGRAPH_URL = "https://api.thegraph.com/subgraphs/name/ianlapham/uniswapv2"
 UNI_V3_SUBGRAPH_URL = uniswap_subgraphs[os.environ.get('UNISWAP_SUBGRAPH', 'prod')]
 VISOR_SUBGRAPH_URL = visor_subgraphs[os.environ.get('VISOR_SUBGRAPH', 'prod')]
-GAMMA_SUBGRAPH_URL = gamma_subgraphs[os.environ.get('GAMMA_SUBGRAPH', 'test')]
+GAMMA_SUBGRAPH_URL = gamma_subgraphs[os.environ.get('GAMMA_SUBGRAPH', 'lab')]
 XGAMMA_SUBGRAPH_URL = "https://api.thegraph.com/subgraphs/name/l0c4t0r/xgamma"
 
 
